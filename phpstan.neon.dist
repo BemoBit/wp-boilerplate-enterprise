@@ -1,0 +1,17 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - src/
+    excludePaths:
+        - vendor/
+        - tests/
+    bootstrapFiles:
+        - vendor/autoload.php
+    scanDirectories:
+        - vendor/php-di/php-di/src/
+    ignoreErrors:
+        - '#^Function [a-zA-Z_]+ not found\.$#'
+    treatPhpDocTypesAsCertain: false

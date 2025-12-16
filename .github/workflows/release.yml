@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create release archive
+        run: |
+          mkdir -p dist
+          rsync -av \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='bin' \
+            --exclude='resources' \
+            --exclude='.editorconfig' \
+            --exclude='.gitignore' \
+            --exclude='.phpcs.xml.dist' \
+            --exclude='phpunit.xml.dist' \
+            --exclude='phpstan.neon.dist' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='composer.lock' \
+            . dist/wp-starter-plugin/
+          cd dist && zip -r wp-starter-plugin-${{ steps.get_version.outputs.VERSION }}.zip wp-starter-plugin
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/wp-starter-plugin-${{ steps.get_version.outputs.VERSION }}.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<ruleset name="WP Starter Plugin Coding Standards">
+    <description>PHP_CodeSniffer ruleset for WP Starter Plugin.</description>
+
+    <!-- What to scan -->
+    <file>.</file>
+
+    <!-- Exclude paths -->
+    <exclude-pattern>/vendor/*</exclude-pattern>
+    <exclude-pattern>/node_modules/*</exclude-pattern>
+    <exclude-pattern>/assets/*</exclude-pattern>
+    <exclude-pattern>/tests/*</exclude-pattern>
+    <exclude-pattern>/bin/*</exclude-pattern>
+
+    <!-- How to scan -->
+    <arg value="sp"/>
+    <arg name="basepath" value="."/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="8"/>
+
+    <!-- Rules: Check PHP version compatibility -->
+    <config name="testVersion" value="8.2-"/>
+    <rule ref="PHPCompatibilityWP">
+        <include-pattern>*\.php$</include-pattern>
+    </rule>
+
+    <!-- Rules: WordPress Coding Standards -->
+    <config name="minimum_wp_version" value="6.0"/>
+
+    <rule ref="WordPress">
+        <!-- Allow short array syntax -->
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+        <!-- Allow PSR-4 file naming -->
+        <exclude name="WordPress.Files.FileName"/>
+        <!-- Allow modern PHP features -->
+        <exclude name="Universal.Operators.DisallowShortTernary"/>
+    </rule>
+
+    <rule ref="WordPress-Extra">
+        <exclude name="WordPress.Files.FileName"/>
+    </rule>
+
+    <rule ref="WordPress-Docs"/>
+
+    <!-- Verify that the text_domain is set to the desired text-domain -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="wp-starter-plugin"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Allow . in hook names -->
+    <rule ref="WordPress.NamingConventions.ValidHookName">
+        <properties>
+            <property name="additionalWordDelimiters" value="."/>
+        </properties>
+    </rule>
+
+    <!-- Check for PHP cross-version compatibility -->
+    <rule ref="PHPCompatibility">
+        <exclude-pattern>tests/</exclude-pattern>
+    </rule>
+
+    <!-- Enforce PSR-4 autoloading -->
+    <rule ref="PSR4"/>
+</ruleset>
